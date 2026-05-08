@@ -15,7 +15,9 @@ typedef enum {
     TOKEN_PRINT,
     TOKEN_LET,
     TOKEN_EOF,
-    TOKEN_ERROR
+    TOKEN_ERROR,
+    TOKEN_COMMA,
+    TOKEN_POINT
 } TokenType;
 
 typedef struct {
