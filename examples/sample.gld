@@ -1,4 +1,7 @@
 let x = 42;
 y = x + 8 * (3 - 1);
+let origin = point(0.0, 0.0);
+let nyc = point(-73.9857, 40.7484);
 print(y);
 print x - 5;
+print(nyc);

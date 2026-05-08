@@ -3,6 +3,7 @@
 
 typedef enum {
     TOKEN_INTEGER,
+    TOKEN_FLOAT,
     TOKEN_IDENTIFIER,
     TOKEN_PLUS,
     TOKEN_MINUS,
@@ -12,12 +13,13 @@ typedef enum {
     TOKEN_SEMICOLON,
     TOKEN_LPAREN,
     TOKEN_RPAREN,
+    TOKEN_COMMA,
     TOKEN_PRINT,
     TOKEN_LET,
+    TOKEN_POINT,
     TOKEN_EOF,
     TOKEN_ERROR,
-    TOKEN_COMMA,
-    TOKEN_POINT
+    TOKEN_DISTANCE
 } TokenType;
 
 typedef struct {

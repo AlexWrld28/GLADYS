@@ -113,6 +113,29 @@ ASTNode* create_integer_literal(int value) {
     return node;
 }
 
+ASTNode* create_float_literal(double value) {
+    ASTNode* node = allocate_node(AST_FLOAT_LITERAL);
+
+    if (node == NULL) {
+        return NULL;
+    }
+
+    node->as.float_literal.value = value;
+    return node;
+}
+
+ASTNode* create_point_literal(double x, double y) {
+    ASTNode* node = allocate_node(AST_POINT_LITERAL);
+
+    if (node == NULL) {
+        return NULL;
+    }
+
+    node->as.point_literal.x = x;
+    node->as.point_literal.y = y;
+    return node;
+}
+
 ASTNode* create_identifier(const char* name) {
     ASTNode* node = allocate_node(AST_IDENTIFIER);
 
@@ -121,6 +144,18 @@ ASTNode* create_identifier(const char* name) {
     }
 
     copy_name(node->as.identifier.name, name);
+    return node;
+}
+
+ASTNode* get_distance(ASTNode* left, ASTNode* right) {
+    ASTNode* origin = allocate_node(AST_DISTANCE_AST_BINARY_EXPRESSION);
+
+    if (node == NULL) {
+        return NULL;
+    }
+
+    node->as.distance_expression.left = left;
+    node->as.distance_expression.right = right;
     return node;
 }
 
@@ -149,6 +184,8 @@ void free_ast(ASTNode* node) {
             free_ast(node->as.binary_expression.right);
             break;
         case AST_INTEGER_LITERAL:
+        case AST_FLOAT_LITERAL:
+        case AST_POINT_LITERAL:
         case AST_IDENTIFIER:
             break;
     }
@@ -191,6 +228,12 @@ void print_ast(const ASTNode* node, int indent) {
             break;
         case AST_INTEGER_LITERAL:
             printf("Integer(%d)\n", node->as.integer_literal.value);
+            break;
+        case AST_FLOAT_LITERAL:
+            printf("Float(%g)\n", node->as.float_literal.value);
+            break;
+        case AST_POINT_LITERAL:
+            printf("Point(%g, %g)\n", node->as.point_literal.x, node->as.point_literal.y);
             break;
         case AST_IDENTIFIER:
             printf("Identifier(%s)\n", node->as.identifier.name);

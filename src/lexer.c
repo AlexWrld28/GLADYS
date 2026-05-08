@@ -53,6 +53,8 @@ const char* token_type_name(TokenType type) {
     switch (type) {
         case TOKEN_INTEGER:
             return "INTEGER";
+        case TOKEN_FLOAT:
+            return "FLOAT";
         case TOKEN_IDENTIFIER:
             return "IDENTIFIER";
         case TOKEN_PLUS:
@@ -71,14 +73,20 @@ const char* token_type_name(TokenType type) {
             return "LPAREN";
         case TOKEN_RPAREN:
             return "RPAREN";
+        case TOKEN_COMMA:
+            return "COMMA";
         case TOKEN_PRINT:
             return "PRINT";
         case TOKEN_LET:
             return "LET";
+        case TOKEN_POINT:
+            return "POINT";
         case TOKEN_EOF:
             return "EOF";
         case TOKEN_ERROR:
             return "ERROR";
+        case TOKEN_DISTANCE
+            return "DISTANCE";
         default:
             return "UNKNOWN";
     }
@@ -100,13 +108,29 @@ Token next_token(Lexer* lexer) {
     }
 
     if (isdigit((unsigned char) current)) {
+        int is_float = 0;
+
         lexer->pos++;
 
         while (isdigit((unsigned char) src[lexer->pos])) {
             lexer->pos++;
         }
 
-        return make_token(TOKEN_INTEGER, src + start, lexer->pos - start, start);
+        if (src[lexer->pos] == '.' && isdigit((unsigned char) src[lexer->pos + 1])) {
+            is_float = 1;
+            lexer->pos++;
+
+            while (isdigit((unsigned char) src[lexer->pos])) {
+                lexer->pos++;
+            }
+        }
+
+        return make_token(
+            is_float ? TOKEN_FLOAT : TOKEN_INTEGER,
+            src + start,
+            lexer->pos - start,
+            start
+        );
     }
 
     if (isalpha((unsigned char) current) || current == '_') {
@@ -116,12 +140,19 @@ Token next_token(Lexer* lexer) {
             lexer->pos++;
         }
 
+        if (lexer->pos - start == 8 && strncmp(src + start, "distance", 8) == 0) {
+            return get_distance(TOKEN_DISTANCE, src + start, lexer->pos - start, start)
+        }
         if (lexer->pos - start == 5 && strncmp(src + start, "print", 5) == 0) {
             return make_token(TOKEN_PRINT, src + start, lexer->pos - start, start);
         }
 
         if (lexer->pos - start == 3 && strncmp(src + start, "let", 3) == 0) {
             return make_token(TOKEN_LET, src + start, lexer->pos - start, start);
+        }
+
+        if (lexer->pos - start == 5 && strncmp(src + start, "point", 5) == 0) {
+            return make_token(TOKEN_POINT, src + start, lexer->pos - start, start);
         }
 
         return make_token(TOKEN_IDENTIFIER, src + start, lexer->pos - start, start);
@@ -146,6 +177,8 @@ Token next_token(Lexer* lexer) {
             return make_token(TOKEN_LPAREN, src + start, 1, start);
         case ')':
             return make_token(TOKEN_RPAREN, src + start, 1, start);
+        case ',':
+            return make_token(TOKEN_COMMA, src + start, 1, start);
         default:
             return make_token(TOKEN_ERROR, src + start, 1, start);
     }

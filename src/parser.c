@@ -43,6 +43,58 @@ static int consume(Parser* parser, TokenType type, const char* message) {
 
 static ASTNode* parse_expression(Parser* parser);
 
+static int parse_point_coordinate(Parser* parser, double* value) {
+    int sign = 1;
+
+    if (match(parser, TOKEN_MINUS)) {
+        sign = -1;
+    }
+
+    if (parser->current.type == TOKEN_INTEGER || parser->current.type == TOKEN_FLOAT) {
+        *value = sign * strtod(parser->current.lexeme, NULL);
+        advance(parser);
+        return 1;
+    }
+
+    parser_error(parser, "expected a numeric point coordinate");
+    return 0;
+}
+
+static ASTNode* parse_point_literal(Parser* parser) {
+    double x;
+    double y;
+    ASTNode* node;
+
+    if (!consume(parser, TOKEN_LPAREN, "expected '(' after point")) {
+        return NULL;
+    }
+
+    if (!parse_point_coordinate(parser, &x)) {
+        return NULL;
+    }
+
+    if (!consume(parser, TOKEN_COMMA, "expected ',' between point coordinates")) {
+        return NULL;
+    }
+
+    if (!parse_point_coordinate(parser, &y)) {
+        return NULL;
+    }
+
+    if (!consume(parser, TOKEN_RPAREN, "expected ')' after point coordinates")) {
+        return NULL;
+    }
+
+    node = create_point_literal(x, y);
+
+    if (node == NULL) {
+        parser_error(parser, "out of memory while building point literal");
+        return NULL;
+    }
+
+    return node;
+}
+
 static ASTNode* parse_primary(Parser* parser) {
     ASTNode* node;
 
@@ -61,6 +113,22 @@ static ASTNode* parse_primary(Parser* parser) {
 
         advance(parser);
         return node;
+    }
+
+    if (parser->current.type == TOKEN_FLOAT) {
+        node = create_float_literal(strtod(parser->current.lexeme, NULL));
+
+        if (node == NULL) {
+            parser_error(parser, "out of memory while building float literal");
+            return NULL;
+        }
+
+        advance(parser);
+        return node;
+    }
+
+    if (match(parser, TOKEN_POINT)) {
+        return parse_point_literal(parser);
     }
 
     if (parser->current.type == TOKEN_IDENTIFIER) {
@@ -90,7 +158,7 @@ static ASTNode* parse_primary(Parser* parser) {
         return node;
     }
 
-    parser_error(parser, "expected an integer, identifier, or parenthesized expression");
+    parser_error(parser, "expected an integer, float, point, identifier, or parenthesized expression");
     return NULL;
 }
 
