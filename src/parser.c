@@ -95,6 +95,51 @@ static ASTNode* parse_point_literal(Parser* parser) {
     return node;
 }
 
+static ASTNode* parse_distance_expression(Parser* parser) {
+    ASTNode* left;
+    ASTNode* right;
+    ASTNode* node;
+
+    if (!consume(parser, TOKEN_LPAREN, "expected '(' after distance")) {
+        return NULL;
+    }
+
+    left = parse_expression(parser);
+
+    if (left == NULL) {
+        return NULL;
+    }
+
+    if (!consume(parser, TOKEN_COMMA, "expected ',' between distance arguments")) {
+        free_ast(left);
+        return NULL;
+    }
+
+    right = parse_expression(parser);
+
+    if (right == NULL) {
+        free_ast(left);
+        return NULL;
+    }
+
+    if (!consume(parser, TOKEN_RPAREN, "expected ')' after distance arguments")) {
+        free_ast(left);
+        free_ast(right);
+        return NULL;
+    }
+
+    node = create_distance_expression(left, right);
+
+    if (node == NULL) {
+        free_ast(left);
+        free_ast(right);
+        parser_error(parser, "out of memory while building distance expression");
+        return NULL;
+    }
+
+    return node;
+}
+
 static ASTNode* parse_primary(Parser* parser) {
     ASTNode* node;
 
@@ -131,6 +176,10 @@ static ASTNode* parse_primary(Parser* parser) {
         return parse_point_literal(parser);
     }
 
+    if (match(parser, TOKEN_DISTANCE)) {
+        return parse_distance_expression(parser);
+    }
+
     if (parser->current.type == TOKEN_IDENTIFIER) {
         node = create_identifier(parser->current.lexeme);
 
@@ -158,7 +207,7 @@ static ASTNode* parse_primary(Parser* parser) {
         return node;
     }
 
-    parser_error(parser, "expected an integer, float, point, identifier, or parenthesized expression");
+    parser_error(parser, "expected an integer, float, point, distance, identifier, or parenthesized expression");
     return NULL;
 }
 

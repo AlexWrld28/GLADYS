@@ -147,8 +147,8 @@ ASTNode* create_identifier(const char* name) {
     return node;
 }
 
-ASTNode* get_distance(ASTNode* left, ASTNode* right) {
-    ASTNode* origin = allocate_node(AST_DISTANCE_AST_BINARY_EXPRESSION);
+ASTNode* create_distance_expression(ASTNode* left, ASTNode* right) {
+    ASTNode* node = allocate_node(AST_DISTANCE_EXPRESSION);
 
     if (node == NULL) {
         return NULL;
@@ -182,6 +182,10 @@ void free_ast(ASTNode* node) {
         case AST_BINARY_EXPRESSION:
             free_ast(node->as.binary_expression.left);
             free_ast(node->as.binary_expression.right);
+            break;
+        case AST_DISTANCE_EXPRESSION:
+            free_ast(node->as.distance_expression.left);
+            free_ast(node->as.distance_expression.right);
             break;
         case AST_INTEGER_LITERAL:
         case AST_FLOAT_LITERAL:
@@ -225,6 +229,11 @@ void print_ast(const ASTNode* node, int indent) {
             printf("Binary(%s)\n", token_type_name(node->as.binary_expression.operator));
             print_ast(node->as.binary_expression.left, indent + 1);
             print_ast(node->as.binary_expression.right, indent + 1);
+            break;
+        case AST_DISTANCE_EXPRESSION:
+            printf("Distance\n");
+            print_ast(node->as.distance_expression.left, indent + 1);
+            print_ast(node->as.distance_expression.right, indent + 1);
             break;
         case AST_INTEGER_LITERAL:
             printf("Integer(%d)\n", node->as.integer_literal.value);

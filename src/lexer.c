@@ -81,12 +81,12 @@ const char* token_type_name(TokenType type) {
             return "LET";
         case TOKEN_POINT:
             return "POINT";
+        case TOKEN_DISTANCE:
+            return "DISTANCE";
         case TOKEN_EOF:
             return "EOF";
         case TOKEN_ERROR:
             return "ERROR";
-        case TOKEN_DISTANCE
-            return "DISTANCE";
         default:
             return "UNKNOWN";
     }
@@ -141,8 +141,9 @@ Token next_token(Lexer* lexer) {
         }
 
         if (lexer->pos - start == 8 && strncmp(src + start, "distance", 8) == 0) {
-            return get_distance(TOKEN_DISTANCE, src + start, lexer->pos - start, start)
+            return make_token(TOKEN_DISTANCE, src + start, lexer->pos - start, start);
         }
+
         if (lexer->pos - start == 5 && strncmp(src + start, "print", 5) == 0) {
             return make_token(TOKEN_PRINT, src + start, lexer->pos - start, start);
         }

@@ -54,8 +54,8 @@ struct ASTNode {
         } identifier;
         struct {
             ASTNode* left;
-            ASTNode* right
-        } distance_expression
+            ASTNode* right;
+        } distance_expression;
     } as;
 };
 
@@ -67,10 +67,9 @@ ASTNode* create_binary_expression(TokenType operator, ASTNode* left, ASTNode* ri
 ASTNode* create_integer_literal(int value);
 ASTNode* create_float_literal(double value);
 ASTNode* create_point_literal(double x, double y);
+ASTNode* create_distance_expression(ASTNode* left, ASTNode* right);
 ASTNode* create_identifier(const char* name);
 void free_ast(ASTNode* node);
 void print_ast(const ASTNode* node, int indent);
-ASTNode* create_distance_expression(ASTNode* left, ASTNode* right);
-
 
 #endif
